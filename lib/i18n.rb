@@ -9,6 +9,7 @@
 # License::   MIT
 require 'i18n/exceptions'
 require 'i18n/core_ext/string/interpolate'
+require 'i18n/load_path'
 
 module I18n
   autoload :Backend, 'i18n/backend'
@@ -87,6 +88,15 @@ module I18n
     # named *.yml and contain YAML data. So for the SimpleBackend clients may
     # register translation files like this:
     #   I18n.load_path << 'path/to/locale/en.yml'
+    # If you need to quickly load all translation data files from specific directory
+    # Convert load_path to I18n::LoadPath
+    #   I18n.load_path = I18n::LoadPath.new I18n.load_path
+    # then you can load single file
+    #   I18n.load_path << 'path/to/locale/en.yml'
+    # or all translation data files in specific directory
+    #   I18n.load_path << 'path/to/locale/'
+    # or all translation data files by given rule:
+    #   I18n.load_path << 'path/to/locale/*.yml'
     def load_path
       @@load_path ||= []
     end
@@ -225,9 +235,9 @@ module I18n
     end
     alias :l :localize
 
-  # making these private until Ruby 1.9.2 can send to protected methods again
-  # see http://redmine.ruby-lang.org/repositories/revision/ruby-19?rev=24280
-  private
+    # making these private until Ruby 1.9.2 can send to protected methods again
+    # see http://redmine.ruby-lang.org/repositories/revision/ruby-19?rev=24280
+    private
 
     # Handles exceptions raised in the backend. All exceptions except for
     # MissingTranslationData exceptions are re-raised. When a MissingTranslationData
