@@ -4,6 +4,12 @@ h2. master
 
 * (no changes)
 
+h2. knapo.0.3.3.1 (2010-01-06)
+
+* "Better error messages on missing translation for localize method":http://github.com/knapo/i18n/commit/30b3f5080bacf235b3ee0ff2f1e07cff61b3cb30
+* "Extend I18n::Backend::Fallbacks for I18n::Backend::Pluralization":http://github.com/knapo/i18n/commit/0273038b39aba1fde9db1a97e64a28e889bc1482
+* "Extend I18n::Backend::Fallbacks for I18n.localize":http://github.com/knapo/i18n/commit/6f3733a3b9c77b571f8ee6bdb5f3d3b7e9332275
+
 h2. 0.3.1 (2009-12-11)
 
 * "Add PoParser to gemspec":http://github.com/svenfuchs/i18n/commit/d6b2763f39c932f66adb039b96882a472f883c51
