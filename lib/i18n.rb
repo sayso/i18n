@@ -235,6 +235,19 @@ module I18n
     end
     alias :l :localize
 
+    # Executes block with given locale set
+    def with_locale(tmp_locale = nil)
+      if tmp_locale
+        current_locale = self.locale
+        self.locale    = tmp_locale
+      end
+      block_result = yield
+      if tmp_locale
+        self.locale = current_locale
+      end
+      return block_result
+    end
+
     # making these private until Ruby 1.9.2 can send to protected methods again
     # see http://redmine.ruby-lang.org/repositories/revision/ruby-19?rev=24280
     private
