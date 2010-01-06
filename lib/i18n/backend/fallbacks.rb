@@ -73,6 +73,20 @@ module I18n
         raise(I18n::MissingTranslationData.new(locale, "#{object.respond_to?(:sec) ? 'time' : 'date'}.formats.#{format}", options))
       end
 
+      #
+      # Overwrites the Base backend localize method so that it will try each
+      # locale given by I18n.fallbacks for the given locale. E.g. for the
+      # locale :"de-DE" it might try the locales :"de-DE", :de and :en
+      # (depends on the fallbacks implementation) until it finds a result with
+      # the given options.
+      #
+      def pluralizer(locale)
+        I18n.fallbacks[locale].each do |fallback|
+          pluralizers[locale] ||= lookup(fallback, :'i18n.plural.rule') and break
+        end unless pluralizers[locale]
+        pluralizers[locale]
+      end
+
     end
   end
 end
