@@ -39,14 +39,15 @@ module I18n
       # another locale.
       #
       def translate(locale, key, options = {})
-        I18n.fallbacks[locale].each do |fallback|
+        default = options.delete(:default)
+        for fallback in I18n.fallbacks[locale]
           begin
             result = super(fallback, key, options)
             return result unless result.nil?
           rescue I18n::MissingTranslationData
           end
         end
-        raise(I18n::MissingTranslationData.new(locale, key, options))
+        (default && default(locale, key, default, options)) || raise(I18n::MissingTranslationData.new(locale, key, options))
       end
 
       #
@@ -71,6 +72,22 @@ module I18n
           end
         end
         raise(I18n::MissingTranslationData.new(locale, i18n_error.key, options))
+      end
+
+      #
+      # Overwrites the Base backend *default* method so that it will try each
+      # locale given by I18n.fallbacks for the given locale. E.g. for the
+      # locale :"de-DE" it might try the locales :"de-DE", :de and :en
+      # (depends on the fallbacks implementation) until it finds a result with
+      # the given options.
+      #
+
+      def default(locale, object, subject, options = {})
+        for fallback in I18n.fallbacks[locale]
+          result = super(fallback, object, subject, options)
+          return result unless result.nil?
+        end
+        nil
       end
 
       #
