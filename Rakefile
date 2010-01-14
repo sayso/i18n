@@ -16,7 +16,7 @@ begin
     s.email = "rails-i18n@googlegroups.com"
     s.homepage = "http://rails-i18n.org"
     s.description = "Add Internationalization support to your Ruby application."
-    s.authors = ['Sven Fuchs', 'Joshua Harvey', 'Matt Aimonetti', 'Stephan Soller', 'Saimon Moore']
+    s.authors = ['Sven Fuchs', 'Joshua Harvey', 'Matt Aimonetti', 'Stephan Soller', 'Saimon Moore', 'Krzysztof Knapik']
     s.files =  FileList["[A-Z]*", "{lib,test,vendor}/**/*"]
   end
 rescue LoadError

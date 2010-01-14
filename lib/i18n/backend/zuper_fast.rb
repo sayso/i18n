@@ -1,14 +1,14 @@
 #
-#   I18n::Backend::Simple.send(:include, I18n::Backend::ZuperFast)
+# I18n::Backend::ZuperFast
 #   
-# Added support for flatten translation file so they can contains flatten keys, e.g.:
+# Adds support for flatten translation file so they can contains flatten keys, e.g.:
 # 
 # en: 
 #   activerecord.errors.messages.accepted: "must be accepted"
 #   activerecord.errors.messages.blank: "can't be blank"
 #
 # So they can be easily a safely merged in case of SCM conflicts
-# and easily edited with large amount of YML data
+# and easily edited and more readeable with large amount of YML data
 # 
 # I18n::Backend::Simple.send(:include, I18n::Backend::ZuperFast)
 #

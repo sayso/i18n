@@ -11,6 +11,7 @@ h2. 0.3.3 Fixes by knapo (2010-01)
 * "Add I18n::LoadPath":http://github.com/knapo/i18n/commit/498bd68d55f5e81513745520550c2f941ac42eba
 * "Add I18n.with_locale method":http://github.com/knapo/i18n/commit/f7ead581f22fba271d54819f8e747de323a5ca7b
 * "Fix :default *translate* method option for I18n::Backend::Fallbacks":http://github.com/knapo/i18n/commit/071ca4349af369b7e2b0a9b4c833cbb7005a5bf2
+* "Added ZuperFast Backend handling flatten YML files
 
 h2. 0.3.1 (2009-12-11)
 
