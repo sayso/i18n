@@ -20,7 +20,7 @@ module I18n
       # }
       #
       def flatten_hash(hash)
-        super(unify_and_flatten_hash(hash))
+        super(unify_hash(hash))
       end
 
       def unify_hash(hash)
