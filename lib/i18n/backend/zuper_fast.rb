@@ -1,5 +1,7 @@
+# encoding: utf-8
+
 #
-# I18n::Backend::ZuperFast
+# Author: Krzysztof Knapik
 #   
 # Adds support for flatten translation file so they can contains flatten keys, e.g.:
 # 
@@ -20,7 +22,7 @@ module I18n
       protected
 
       #
-      # Overwrites flatten_hash to unify hash keys first
+      # Overwrites I18n::Backend::Fast#flatten_hash to unify hash keys before flattening
       #
       # flatten_hash({:a=>"a", :b=>{:c=>"c}, :"g.h.j" => "j"})
       # => {:"g.h.j"=>"j", :g=>{:h=>{:j=>"j"}}, :"g.h"=>{:j=>"j"}, :"b.c"=>"c", :a=>"a", :b=>{:c=>"c"}}

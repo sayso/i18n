@@ -1,7 +1,9 @@
 # encoding: utf-8
 
-# Authors::   Krzysztof Knapik (http://www.knapo.net),
-# License::   MIT
+# Author: Krzysztof Knapik
+#
+# Based on Globalize::LoadPath::I18n
+# http://github.com/joshmh/globalize2/blob/8eba0228b70225958dca2fcf0255b55237d67036/lib/globalize/load_path.rb
 #
 # Better paths registering.
 # It can load single file
