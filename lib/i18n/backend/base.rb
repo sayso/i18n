@@ -7,7 +7,7 @@ module I18n
     module Base
       include I18n::Backend::Helpers
 
-      RESERVED_KEYS = [:scope, :default, :separator]
+      RESERVED_KEYS = [:scope, :default, :separator, :resolve]
       INTERPOLATION_SYNTAX_PATTERN = /(\\)?\{\{([^\}]+)\}\}/
 
       # Accepts a list of paths to translation files. Loads translations from
@@ -56,8 +56,7 @@ module I18n
         if Symbol === format
           key = format
           type = object.respond_to?(:sec) ? 'time' : 'date'
-          format = lookup(locale, :"#{type}.formats.#{key}")
-          raise(MissingTranslationData.new(locale, key, options)) if format.nil?
+          format = I18n.t(:"#{type}.formats.#{key}", :locale => locale, :raise => true)
         end
 
         format = resolve(locale, object, format, options)
@@ -142,6 +141,7 @@ module I18n
         # given options. If it is a Proc then it will be evaluated. All other
         # subjects will be returned directly.
         def resolve(locale, object, subject, options = nil)
+          return subject if options[:resolve] == false
           case subject
           when Symbol
             I18n.translate(subject, (options || {}).merge(:locale => locale, :raise => true))

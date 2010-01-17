@@ -11,7 +11,6 @@ module I18n
         when ::Numeric
           format(locale, object, { :as => :number }.merge(options.merge(:format => format)))
         when ::Date, ::DateTime, ::Time
-          format = :medium if format == :default # TODO :default is missing in cldr extraction
           format(locale, object, { :as => object.class.name.downcase }.merge(options.merge(:format => format)))
         else
           super
@@ -21,12 +20,13 @@ module I18n
       protected
 
         def lookup_format(locale, type, format)
-          case type
-          when :date, :datetime, :time
-            I18n.t(:"calendars.gregorian.formats.#{type}.#{format}.pattern", :locale => locale, :raise => true)
+          key = case type
+          when :date, :time, :datetime
+            :"calendars.gregorian.formats.#{type}.#{format}.pattern"
           else
-            I18n.t(:"numbers.formats.#{type}.patterns.#{format || :default}", :locale => locale, :raise => true)
+            :"numbers.formats.#{type}.patterns.#{format || :default}"
           end
+          I18n.t(key, :locale => locale, :raise => true)
         end
 
         def lookup_format_data(locale, type)

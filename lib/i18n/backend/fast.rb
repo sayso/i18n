@@ -50,7 +50,7 @@ module I18n
           return unless key
           init_translations unless initialized?
 
-          return nil unless flattened_translations[locale.to_sym]
+          return nil unless flattened_translations.has_key?(locale.to_sym)
 
           if separator && I18n.default_separator != separator
             key   = cleanup_non_standard_separator(key, separator)
