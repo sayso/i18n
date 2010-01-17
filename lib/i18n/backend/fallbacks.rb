@@ -64,14 +64,14 @@ module I18n
       # another locale.
       #
       def localize(locale, object, format = :default, options = {})
-        for fallback in I18n.fallbacks[locale]
+        I18n.fallbacks[locale].each do |fallback|
           begin
             result = super(fallback, object, format, options)
             return result unless result.nil?
-          rescue I18n::MissingTranslationData => i18n_error
+          rescue I18n::MissingTranslationData
           end
         end
-        raise(I18n::MissingTranslationData.new(locale, i18n_error.key, options))
+        raise(I18n::MissingTranslationData.new(locale, "#{object.respond_to?(:sec) ? 'time' : 'date'}.formats.#{format}", options))
       end
 
       #

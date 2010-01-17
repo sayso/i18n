@@ -13,9 +13,6 @@
 #
 # You also need to make sure to provide pluralization algorithms to the
 # backend, i.e. include them to your I18n.load_path accordingly.
-#
-# If you are using Pluralization module with different I18n backend modules
-# make sure that Pluralization is included as first.
 module I18n
   module Backend
     module Pluralization

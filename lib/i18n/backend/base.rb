@@ -54,11 +54,10 @@ module I18n
         raise ArgumentError, "Object must be a Date, DateTime or Time object. #{object.inspect} given." unless object.respond_to?(:strftime)
 
         if Symbol === format
-          key      = format
-          type     = object.respond_to?(:sec) ? 'time' : 'date'
-          full_key = :"#{type}.formats.#{key}"
-          format   = lookup(locale, full_key)
-          raise(MissingTranslationData.new(locale, full_key, options)) if format.nil?
+          key = format
+          type = object.respond_to?(:sec) ? 'time' : 'date'
+          format = lookup(locale, :"#{type}.formats.#{key}")
+          raise(MissingTranslationData.new(locale, key, options)) if format.nil?
         end
 
         format = resolve(locale, object, format, options)
