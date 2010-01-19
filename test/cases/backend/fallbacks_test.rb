@@ -33,6 +33,19 @@ class I18nBackendFallbacksTranslateTest < Test::Unit::TestCase
     assert_equal 'Buz in :en', I18n.t(:buz, :locale => :'de-DE')
   end
 
+  define_method "test: returns the :de translation for a missing :'de-DE' when :default is a String" do
+    assert_equal 'Bar in :de', I18n.t(:bar, :locale => :'de-DE', :default => "Default Bar")
+    assert_equal "Default Bar", I18n.t(:missing_bar, :locale => :'de-DE', :default => "Default Bar")
+  end
+
+  define_method "test: returns the :'de-DE' :default :baz translation for a missing :'de-DE' when :default contains Symbol" do
+    assert_equal 'Baz in :de-DE', I18n.t(:missing_bar, :locale => :'de-DE', :default => [:baz, "Default Bar"])
+  end
+
+  define_method "test: returns the :default translation for a missing :'de-DE' and existing :de when :default is a Hash" do
+    assert_equal 'Default 6 Bars', I18n.t(:bar, :locale => :'de-DE', :default => {:other => "Default {{count}} Bars"}, :count => 6)
+  end
+
   define_method "test: raises I18n::MissingTranslationData exception when no translation was found" do
     assert_raises(I18n::MissingTranslationData) { I18n.t(:faa, :locale => :en, :raise => true) }
     assert_raises(I18n::MissingTranslationData) { I18n.t(:faa, :locale => :de, :raise => true) }
