@@ -34,12 +34,14 @@ module I18n
       # locales it will then raise a MissingTranslationData exception as
       # usual.
       #
-      # The default option takes precedence over fallback locales, i.e. it
-      # will first evaluate a given default option before falling back to
-      # another locale.
+      # The default option takes precedence over fallback locales
+      # only when it's not a String. When default contains String it 
+      # is evaluated avter fallback locales.
       #
       def translate(locale, key, options = {})
-        default = options.delete(:default)
+        if options[:default]
+          string_default, options[:default] = Array[options[:default]].flatten.partition{|f| f.is_a?(String)}
+        end
         for fallback in I18n.fallbacks[locale]
           begin
             result = super(fallback, key, options)
@@ -47,20 +49,20 @@ module I18n
           rescue I18n::MissingTranslationData
           end
         end
-        (default && default(locale, key, default, options)) || raise(I18n::MissingTranslationData.new(locale, key, options))
+        super(locale, key, options.merge(:default => string_default)) || raise(I18n::MissingTranslationData.new(locale, key, options))
       end
 
       #
-      # Overwrites the Base backend *default* method so that it will try each
+      # Extend the Base backend *default* method so that it will try each
       # locale given by I18n.fallbacks for the given locale. E.g. for the
       # locale :"de-DE" it might try the locales :"de-DE", :de and :en
       # (depends on the fallbacks implementation) until it finds a result with
       # the given options.
       #
 
-      def default(locale, object, subject, options = {})
+      def default_with_fallback(locale, object, subject, options = {})
         for fallback in I18n.fallbacks[locale]
-          result = super(fallback, object, subject, options)
+          result = default(fallback, object, subject, options)
           return result unless result.nil?
         end
         nil
