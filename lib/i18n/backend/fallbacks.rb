@@ -52,22 +52,6 @@ module I18n
         super(locale, key, options.merge(:default => string_default)) || raise(I18n::MissingTranslationData.new(locale, key, options))
       end
 
-      #
-      # Extend the Base backend *default* method so that it will try each
-      # locale given by I18n.fallbacks for the given locale. E.g. for the
-      # locale :"de-DE" it might try the locales :"de-DE", :de and :en
-      # (depends on the fallbacks implementation) until it finds a result with
-      # the given options.
-      #
-
-      def default_with_fallback(locale, object, subject, options = {})
-        for fallback in I18n.fallbacks[locale]
-          result = default(fallback, object, subject, options)
-          return result unless result.nil?
-        end
-        nil
-      end
-
     end
   end
 end
