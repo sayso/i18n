@@ -30,9 +30,9 @@ class I18nBackendCascadeTest < Test::Unit::TestCase
   end
 
   test "raises I18n::MissingTranslationData exception when no translation was found" do
-    assert_raises(I18n::MissingTranslationData) { I18n.t(:'foo.does_not_exist', :raise => true) }
-    assert_raises(I18n::MissingTranslationData) { I18n.t(:'bar.baz.does_not_exist', :raise => true) }
-    assert_raises(I18n::MissingTranslationData) { I18n.t(:'does_not_exist.bar.baz', :raise => true) }
+    assert_raise(I18n::MissingTranslationData) { I18n.t(:'foo.does_not_exist', :raise => true) }
+    assert_raise(I18n::MissingTranslationData) { I18n.t(:'bar.baz.does_not_exist', :raise => true) }
+    assert_raise(I18n::MissingTranslationData) { I18n.t(:'does_not_exist.bar.baz', :raise => true) }
   end
 
   test "cascades before evaluating the default" do
