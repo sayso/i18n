@@ -40,16 +40,18 @@ module I18n
       #
       def translate(locale, key, options = {})
         if options[:default]
-          string_default, options[:default] = Array[options[:default]].flatten.partition{|f| f.is_a?(String)}
+          options[:default] = Array[options[:default]] unless options[:default].is_a?(Array)
+          string_default    = options[:default].detect{|default| default.is_a?(String)}
+          options[:default] = options[:default].take_while {|default| !default.is_a?(String) } if string_default
         end
-        for fallback in I18n.fallbacks[locale]
+        I18n.fallbacks[locale].each do |fallback|
           begin
             result = super(fallback, key, options)
             return result unless result.nil?
           rescue I18n::MissingTranslationData
           end
         end
-        super(locale, key, options.merge(:default => string_default)) || raise(I18n::MissingTranslationData.new(locale, key, options))
+        string_default ? super(locale, nil, options.merge(:default => string_default)) : raise(I18n::MissingTranslationData.new(locale, key, options))
       end
     end
   end
