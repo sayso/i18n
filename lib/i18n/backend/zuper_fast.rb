@@ -14,6 +14,9 @@
 # 
 # I18n::Backend::Simple.send(:include, I18n::Backend::ZuperFast)
 #
+
+require 'active_support/core_ext/hash' unless Hash.methods.include?("deep_merge")
+
 module I18n
   module Backend
     module ZuperFast
