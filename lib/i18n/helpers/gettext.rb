@@ -15,7 +15,7 @@ module I18n
 
       def sgettext(msgid, separator = '|')
         scope, msgid = I18n::Gettext.extract_scope(msgid, separator)
-        I18n.t(msgid, :scope => scope, :default => msgid)
+        I18n.t(msgid, :scope => scope, :default => msgid, :separator => separator)
       end
       alias s_ sgettext
 
@@ -36,7 +36,7 @@ module I18n
       def nsgettext(msgid, msgid_plural, n = 1, separator = '|')
         if msgid.is_a?(Array)
           msgid, msgid_plural, n, separator = msgid[0], msgid[1], msgid_plural, n
-          separator = '|' unless separator.is_a?(String)
+          separator = '|' unless separator.is_a?(::String)
         end
 
         scope, msgid = I18n::Gettext.extract_scope(msgid, separator)

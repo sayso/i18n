@@ -116,7 +116,7 @@ module I18n
             key = key.to_sym
             return nil unless result.is_a?(Hash) && result.has_key?(key)
             result = result[key]
-            result = resolve(locale, key, result, options.except(:scope)) if result.is_a?(Symbol)
+            result = resolve(locale, key, result, options) if result.is_a?(Symbol)
             result
           end
         end
@@ -177,7 +177,7 @@ module I18n
         # the <tt>{{...}}</tt> key in a string (once for the string and once for the
         # interpolation).
         def interpolate(locale, string, values = {})
-          return string unless string.is_a?(String) && !values.empty?
+          return string unless string.is_a?(::String) && !values.empty?
 
           preserve_encoding(string) do
             s = string.gsub(INTERPOLATION_SYNTAX_PATTERN) do
@@ -193,7 +193,7 @@ module I18n
 
             values.each do |key, value|
               value = value.call(values) if interpolate_lambda?(value, s, key)
-              value = value.to_s unless value.is_a?(String)
+              value = value.to_s unless value.is_a?(::String)
               values[key] = value
             end
 
