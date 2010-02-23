@@ -25,13 +25,13 @@ module I18n
       protected
 
       #
-      # Overwrites I18n::Backend::Fast#flatten_hash to unify hash keys before flattening
+      # Overwrites I18n::Backend::Fast#flatten_translations to unify hash keys before flattening
       #
       # flatten_hash({:a=>"a", :b=>{:c=>"c}, :"g.h.j" => "j"})
       # => {:"g.h.j"=>"j", :g=>{:h=>{:j=>"j"}}, :"g.h"=>{:j=>"j"}, :"b.c"=>"c", :a=>"a", :b=>{:c=>"c"}}
       #
-      def flatten_hash(hash)
-        super(unify_hash(hash))
+      def flatten_translations(translations)
+        super(unify_hash(translations))
       end
 
       #

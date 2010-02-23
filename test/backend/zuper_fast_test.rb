@@ -37,7 +37,8 @@ class I18nBackendZuperFastSpecificTest < Test::Unit::TestCase
   end
 
   test "translate" do
-    @backend.store_translations :en, @backend.send(:flatten_hash, {:"a.b.c" => "foo", :x => {:y => {:z => "bar"}}})
+    unified_hash =  @backend.send(:unify_hash, {:"a.b.c" => "foo", :x => {:y => {:z => "bar"}}})
+    @backend.store_translations :en, @backend.send(:wind_keys, unified_hash, nil, true)
 
     assert_equal({:c=>"foo"}, @backend.translate(:en, :"a.b"))
     assert_equal("foo", @backend.translate(:en, :"a.b.c"))
