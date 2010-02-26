@@ -12,14 +12,14 @@
 # So they can be easily a safely merged in case of SCM conflicts
 # and easily edited and more readeable with large amount of YML data
 # 
-# I18n::Backend::Simple.send(:include, I18n::Backend::ZuperFast)
+# I18n::Backend::Simple.send(:include, I18n::Backend::FastWind)
 #
 
 require 'active_support/core_ext/hash' unless Hash.methods.include?("deep_merge")
 
 module I18n
   module Backend
-    module ZuperFast
+    module FastWind
       include I18n::Backend::Fast
 
       protected

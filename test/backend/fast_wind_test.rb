@@ -4,25 +4,25 @@ require 'test_helper'
 require 'backend/simple_test'
 
 class I18nBackendFastTest < I18nBackendSimpleTest
-  class ZuperFastBackend
+  class FastWindBackend
     include I18n::Backend::Base
-    include I18n::Backend::ZuperFast
+    include I18n::Backend::FastWind
   end
   
   def setup
     super
-    I18n.backend = ZuperFastBackend.new
+    I18n.backend = FastWindBackend.new
   end
 end
 
-class I18nBackendZuperFastSpecificTest < Test::Unit::TestCase
-  class ZuperFastBackend
+class I18nBackendFastWindSpecificTest < Test::Unit::TestCase
+  class FastWindBackend
     include I18n::Backend::Base
-    include I18n::Backend::ZuperFast
+    include I18n::Backend::FastWind
   end
   
   def setup
-    @backend = ZuperFastBackend.new
+    @backend = FastWindBackend.new
   end
 
   def assert_unified(expected, flattened)

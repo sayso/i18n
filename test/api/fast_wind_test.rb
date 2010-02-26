@@ -3,7 +3,7 @@ $:.unshift(File.expand_path(File.dirname(__FILE__) + '/../')); $:.uniq!
 require 'test_helper'
 require 'api'
 
-class I18nZuperFastBackendApiTest < Test::Unit::TestCase
+class I18nFastWindBackendApiTest < Test::Unit::TestCase
   include Tests::Api::Basics
   include Tests::Api::Defaults
   include Tests::Api::Interpolation
@@ -16,17 +16,17 @@ class I18nZuperFastBackendApiTest < Test::Unit::TestCase
   include Tests::Api::Localization::Time
   include Tests::Api::Localization::Procs
 
-  class ZuperFastBackend
+  class FastWindBackend
     include I18n::Backend::Base
-    include I18n::Backend::ZuperFast
+    include I18n::Backend::FastWind
   end
 
   def setup
-    I18n.backend = ZuperFastBackend.new
+    I18n.backend = FastWindBackend.new
     super
   end
 
-  test "make sure we use the ZuperFastBackend backend" do
-    assert_equal ZuperFastBackend, I18n.backend.class
+  test "make sure we use the FastWindBackend backend" do
+    assert_equal FastWindBackend, I18n.backend.class
   end
 end

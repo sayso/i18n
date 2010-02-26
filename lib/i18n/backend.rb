@@ -15,6 +15,6 @@ module I18n
     autoload :Metadata,              'i18n/backend/metadata'
     autoload :Pluralization,         'i18n/backend/pluralization'
     autoload :Simple,                'i18n/backend/simple'
-    autoload :ZuperFast,             'i18n/backend/zuper_fast'
+    autoload :FastWind,              'i18n/backend/fast_wind'
   end
 end
