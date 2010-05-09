@@ -232,7 +232,7 @@ module I18n
     end
     alias :l :localize
 
-    # Executes block with given locale set
+    # Executes block with given I18n.locale set.
     def with_locale(tmp_locale = nil)
       if tmp_locale
         current_locale = self.locale
@@ -259,9 +259,9 @@ module I18n
       keys
     end
 
-    # making these private until Ruby 1.9.2 can send to protected methods again
-    # see http://redmine.ruby-lang.org/repositories/revision/ruby-19?rev=24280
-    private
+  # making these private until Ruby 1.9.2 can send to protected methods again
+  # see http://redmine.ruby-lang.org/repositories/revision/ruby-19?rev=24280
+  private
 
 
     # Handles exceptions raised in the backend. All exceptions except for
