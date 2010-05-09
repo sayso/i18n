@@ -16,6 +16,5 @@ module I18n
     autoload :Pluralization,         'i18n/backend/pluralization'
     autoload :Simple,                'i18n/backend/simple'
     autoload :Transliterator,        'i18n/backend/transliterator'
-    autoload :FastWind,              'i18n/backend/fast_wind'
   end
 end
