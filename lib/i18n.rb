@@ -263,7 +263,6 @@ module I18n
   # see http://redmine.ruby-lang.org/repositories/revision/ruby-19?rev=24280
   private
 
-
     # Handles exceptions raised in the backend. All exceptions except for
     # MissingTranslationData exceptions are re-raised. When a MissingTranslationData
     # was caught and the option :raise is not set the handler returns an error
