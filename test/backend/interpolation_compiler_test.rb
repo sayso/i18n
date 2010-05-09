@@ -42,7 +42,7 @@ class InterpolationCompilerTest < Test::Unit::TestCase
   end
 
   def test_interpolated_string_gets_compiled
-    assert_equal '-A-', compile_and_interpolate('-{{a}}-', :a => 'A')
+    assert_equal '-A-', compile_and_interpolate('-%{a}-', :a => 'A')
   end
 
   def assert_handles_key(str, key)
@@ -50,34 +50,34 @@ class InterpolationCompilerTest < Test::Unit::TestCase
   end
 
   def test_compiles_fancy_keys
-    assert_handles_key('{{\}}',      :'\\'    )
-    assert_handles_key('{{#}}',      :'#'     )
-    assert_handles_key('{{#{}}',     :'#{'    )
-    assert_handles_key('{{#$SAFE}}', :'#$SAFE')
-    assert_handles_key('{{\000}}',   :'\000'  )
-    assert_handles_key('{{\'}}',     :'\''    )
-    assert_handles_key('{{\'\'}}',   :'\'\''  )
-    assert_handles_key('{{a.b}}',    :'a.b'   )
-    assert_handles_key('{{ }}',      :' '     )
-    assert_handles_key('{{:}}',      :':'     )
-    assert_handles_key("{{:''}}",    :":''"   )
-    assert_handles_key('{{:"}}',     :':"'    )
+    assert_handles_key('%{\}',       :'\\'    )
+    assert_handles_key('%{#}',       :'#'     )
+    assert_handles_key('%{#{}',      :'#{'    )
+    assert_handles_key('%{#$SAFE}',  :'#$SAFE')
+    assert_handles_key('%{\000}',    :'\000'  )
+    assert_handles_key('%{\'}',      :'\''    )
+    assert_handles_key('%{\'\'}',    :'\'\''  )
+    assert_handles_key('%{a.b}',     :'a.b'   )
+    assert_handles_key('%{ }',       :' '     )
+    assert_handles_key('%{:}',       :':'     )
+    assert_handles_key("%{:''}",     :":''"   )
+    assert_handles_key('%{:"}',      :':"'    )
   end
 
   def test_str_containing_only_escaped_interpolation_is_handled_correctly
-    assert_equal 'abc {{x}}', compile_and_interpolate('abc \\{{x}}')
+    assert_equal 'abc %{x}', compile_and_interpolate('abc %%{x}')
   end
 
-  def test_handles_weired_strings
-    assert_equal '#{} a',         compile_and_interpolate('#{} {{a}}',        :a    => 'a')
-    assert_equal '"#{abc}"',      compile_and_interpolate('"#{ab{{a}}c}"',    :a    => '' )
-    assert_equal 'a}',            compile_and_interpolate('{{{a}}}',          :'{a' => 'a')
-    assert_equal '"',             compile_and_interpolate('"{{a}}',           :a    => '' )
-    assert_equal 'a{{a}}',        compile_and_interpolate('{{a}}\\{{a}}',     :a    => 'a')
-    assert_equal '\\{{a}}',       compile_and_interpolate('\\\\{{a}}')
-    assert_equal '\";eval("a")',  compile_and_interpolate('\";eval("{{a}}")', :a    => 'a')
-    assert_equal '\";eval("a")',  compile_and_interpolate('\";eval("a"){{a}}',:a    => '' )
-    assert_equal "\na",           compile_and_interpolate("\n{{a}}",          :a    => 'a')
+  def test_handles_weird_strings
+    assert_equal '#{} a',         compile_and_interpolate('#{} %{a}',         :a    => 'a')
+    assert_equal '"#{abc}"',      compile_and_interpolate('"#{ab%{a}c}"',     :a    => '' )
+    assert_equal 'a}',            compile_and_interpolate('%{{a}}',           :'{a' => 'a')
+    assert_equal '"',             compile_and_interpolate('"%{a}',            :a    => '' )
+    assert_equal 'a%{a}',         compile_and_interpolate('%{a}%%{a}',        :a    => 'a')
+    assert_equal '%%{a}',         compile_and_interpolate('%%%{a}')
+    assert_equal '\";eval("a")',  compile_and_interpolate('\";eval("%{a}")',  :a    => 'a')
+    assert_equal '\";eval("a")',  compile_and_interpolate('\";eval("a")%{a}', :a    => '' )
+    assert_equal "\na",           compile_and_interpolate("\n%{a}",           :a    => 'a')
   end
 end
 

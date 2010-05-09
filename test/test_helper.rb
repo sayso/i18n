@@ -11,8 +11,9 @@ require 'time'
 require 'yaml'
 
 require 'i18n'
-require 'i18n/core_ext/object/meta_class'
 require 'test_setup_requirements'
+
+setup_mocha
 
 class Test::Unit::TestCase
   def self.test(name, &block)
@@ -62,5 +63,23 @@ class Test::Unit::TestCase
     I18n.backend.class != I18n::Backend::ActiveRecord or
     I18n::Backend::ActiveRecord.included_modules.include?(I18n::Backend::ActiveRecord::StoreProcs)
   end
+
+  def capture(stream)
+    begin
+      stream = stream.to_s
+      eval "$#{stream} = StringIO.new"
+      yield
+      result = eval("$#{stream}").string
+    ensure 
+      eval("$#{stream} = #{stream.upcase}")
+    end
+
+    result
+  end
 end
 
+Object.class_eval do
+  def meta_class
+    class << self; self; end
+  end
+end unless Object.method_defined?(:meta_class)

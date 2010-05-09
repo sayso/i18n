@@ -11,14 +11,18 @@
 # InterpolationCompiler module to the Simple backend:
 #
 #   I18n::Backend::Simple.send(:include, I18n::Backend::InterpolationCompiler)
+#
+# Note that InterpolationCompiler does not yield meaningful results and consequently
+# should not be used with Ruby 1.9 (YARV) but improves performance everywhere else
+# (jRuby, Rubinius and 1.8.7).
 module I18n
   module Backend
     module InterpolationCompiler
       module Compiler
         extend self
 
-        TOKENIZER                    = /(\\\{\{[^\}]+\}\}|\{\{[^\}]+\}\})/
-        INTERPOLATION_SYNTAX_PATTERN = /(\\)?(\{\{([^\}]+)\}\})/
+        TOKENIZER                    = /(%%\{[^\}]+\}|%\{[^\}]+\})/
+        INTERPOLATION_SYNTAX_PATTERN = /(%)?(%\{([^\}]+)\})/
 
         def compile_if_an_interpolation(string)
           if interpolated_str?(string)
@@ -37,7 +41,7 @@ module I18n
         end
 
         protected
-        # tokenize("foo {{bar}} baz \\{{buz}}") # => ["foo ", "{{bar}}", " baz ", "\\{{buz}}"]
+        # tokenize("foo %{bar} baz %%{buz}") # => ["foo ", "%{bar}", " baz ", "%%{buz}"]
         def tokenize(str)
           str.split(TOKENIZER)
         end
@@ -102,7 +106,7 @@ module I18n
         end
       end
 
-      def merge_translations(locale, data, options = {})
+      def store_translations(locale, data, options = {})
         compile_all_strings_in(data)
         super
       end

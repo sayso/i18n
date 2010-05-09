@@ -10,7 +10,7 @@ class I18nBackendMetadataTest < Test::Unit::TestCase
 
   def setup
     I18n.backend = Backend.new
-    store_translations(:en, :foo => 'Hi {{name}}')
+    store_translations(:en, :foo => 'Hi %{name}')
   end
 
   test "translation strings carry metadata" do
@@ -46,11 +46,15 @@ class I18nBackendMetadataTest < Test::Unit::TestCase
   end
 
   test "interpolation adds the original string to metadata on Strings" do
-    assert_equal('Hi {{name}}', I18n.t(:foo, :name => 'David').translation_metadata[:original])
+    assert_equal('Hi %{name}', I18n.t(:foo, :name => 'David').translation_metadata[:original])
   end
 
-  test "pluralizatoin adds the count to metadata on Strings" do
+  test "pluralization adds the count to metadata on Strings" do
     assert_equal(1, I18n.t(:missing, :count => 1, :default => { :one => 'foo' }).translation_metadata[:count])
+  end
+
+  test "metadata works with frozen values" do
+    assert_equal(1, I18n.t(:missing, :count => 1, :default => 'foo'.freeze).translation_metadata[:count])
   end
   
   protected

@@ -2,3 +2,5 @@
 test/rails/fixtures
 nbproject/
 vendor/cldr
+*.swp
+pkg

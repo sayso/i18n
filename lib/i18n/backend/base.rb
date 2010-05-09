@@ -1,14 +1,15 @@
 # encoding: utf-8
 
 require 'yaml'
-require 'i18n/core_ext/hash/except'
+require 'i18n/core_ext/hash'
 
 module I18n
   module Backend
     module Base
-      include I18n::Backend::Helpers
+      include I18n::Backend::Transliterator
 
       RESERVED_KEYS = [:scope, :default, :separator, :resolve]
+      RESERVED_KEYS_PATTERN = /%?%\{(#{RESERVED_KEYS.join("|")})\}/
       INTERPOLATION_SYNTAX_PATTERN = /(\\)?\{\{([^\}]+)\}\}/
 
       # Accepts a list of paths to translation files. Loads translations from
@@ -23,28 +24,33 @@ module I18n
       # translations will be overwritten by new ones only at the deepest
       # level of the hash.
       def store_translations(locale, data, options = {})
-        merge_translations(locale, data, options)
+        locale = locale.to_sym
+        translations[locale] ||= {}
+
+        data = data.deep_symbolize_keys
+        translations[locale].deep_merge!(data)
       end
 
       def translate(locale, key, options = {})
         raise InvalidLocale.new(locale) unless locale
         return key.map { |k| translate(locale, k, options) } if key.is_a?(Array)
 
+        entry = lookup!(locale, key, options)
+
         if options.empty?
-          entry = resolve(locale, key, lookup(locale, key), options)
-          raise(I18n::MissingTranslationData.new(locale, key, options)) if entry.nil?
+          entry = resolve(locale, key, entry, options)
         else
-          count, scope, default = options.values_at(:count, :scope, :default)
-          values = options.reject { |name, value| RESERVED_KEYS.include?(name) }
-
-          entry = lookup(locale, key, scope, options)
-          entry = entry.nil? && default ? default(locale, key, default, options) : resolve(locale, key, entry, options)
-          raise(I18n::MissingTranslationData.new(locale, key, options)) if entry.nil?
-
-          entry = pluralize(locale, entry, count)    if count
-          entry = interpolate(locale, entry, values) if values
+          count, default = options.values_at(:count, :default)
+          values = options.except(*RESERVED_KEYS)
+          entry = entry.nil? && default ?
+            default(locale, key, default, options) : resolve(locale, key, entry, options)
         end
 
+        raise(I18n::MissingTranslationData.new(locale, key, options)) if entry.nil?
+        entry = entry.dup if entry.is_a?(String)
+
+        entry = pluralize(locale, entry, count) if count
+        entry = interpolate(locale, entry, values) if values
         entry
       end
 
@@ -91,9 +97,11 @@ module I18n
       def reload!
         @initialized = false
         @translations = nil
+        @skip_syntax_deprecation = false
       end
 
       protected
+
         def init_translations
           load_translations(*I18n.load_path.flatten)
           @initialized = true
@@ -103,21 +111,28 @@ module I18n
           @translations ||= {}
         end
 
+        # Check if the key is valid and then initialize the translation and
+        # trigger the default lookup behavior.
+        def lookup!(locale, key, options)
+          return unless key
+          init_translations unless initialized?
+          lookup(locale, key, options[:scope], options)
+        end
+
         # Looks up a translation from the translations hash. Returns nil if
         # eiher key is nil, or locale, scope or key do not exist as a key in the
         # nested translations hash. Splits keys or scopes containing dots
         # into multiple keys, i.e. <tt>currency.format</tt> is regarded the same as
         # <tt>%w(currency format)</tt>.
         def lookup(locale, key, scope = [], options = {})
-          return unless key
-          init_translations unless initialized?
           keys = I18n.normalize_keys(locale, key, scope, options[:separator])
+
           keys.inject(translations) do |result, key|
             key = key.to_sym
             return nil unless result.is_a?(Hash) && result.has_key?(key)
             result = result[key]
-            result = resolve(locale, key, result, options) if result.is_a?(Symbol)
-            String === result ? result.dup : result
+            result = resolve(locale, key, result, options.merge(:scope => nil)) if result.is_a?(Symbol)
+            result
           end
         end
 
@@ -171,8 +186,8 @@ module I18n
 
         # Interpolates values into a given string.
         #
-        #   interpolate "file {{file}} opened by \\{{user}}", :file => 'test.txt', :user => 'Mr. X'
-        #   # => "file test.txt opened by {{user}}"
+        #   interpolate "file %{file} opened by %%{user}", :file => 'test.txt', :user => 'Mr. X'
+        #   # => "file test.txt opened by %{user}"
         #
         # Note that you have to double escape the <tt>\\</tt> when you want to escape
         # the <tt>{{...}}</tt> key in a string (once for the string and once for the
@@ -181,28 +196,30 @@ module I18n
           return string unless string.is_a?(::String) && !values.empty?
 
           preserve_encoding(string) do
-            s = string.gsub(INTERPOLATION_SYNTAX_PATTERN) do
+            string = string.gsub(INTERPOLATION_SYNTAX_PATTERN) do
               escaped, key = $1, $2.to_sym
               if escaped
                 "{{#{key}}}"
-              elsif RESERVED_KEYS.include?(key)
-                raise ReservedInterpolationKey.new(key, string)
               else
+                warn_syntax_deprecation!
                 "%{#{key}}"
               end
             end
 
             values.each do |key, value|
-              value = value.call(values) if interpolate_lambda?(value, s, key)
+              value = value.call(values) if interpolate_lambda?(value, string, key)
               value = value.to_s unless value.is_a?(::String)
               values[key] = value
             end
 
-            s % values
+            string % values
           end
-
         rescue KeyError => e
-          raise MissingInterpolationArgument.new(values, string)
+          if string =~ RESERVED_KEYS_PATTERN
+            raise ReservedInterpolationKey.new($1.to_sym, string)
+          else
+            raise MissingInterpolationArgument.new(values, string)
+          end
         end
 
         def preserve_encoding(string)
@@ -230,7 +247,7 @@ module I18n
           type = File.extname(filename).tr('.', '').downcase
           raise UnknownFileType.new(type, filename) unless respond_to?(:"load_#{type}")
           data = send(:"load_#{type}", filename) # TODO raise a meaningful exception if this does not yield a Hash
-          data.each { |locale, d| merge_translations(locale, d) }
+          data.each { |locale, d| store_translations(locale, d) }
         end
 
         # Loads a plain Ruby translations file. eval'ing the file must yield
@@ -245,22 +262,10 @@ module I18n
           YAML::load(IO.read(filename))
         end
 
-        # Deep merges the given translations hash with the existing translations
-        # for the given locale
-        def merge_translations(locale, data, options = {})
-          locale = locale.to_sym
-          translations[locale] ||= {}
-          separator = options[:separator] || I18n.default_separator
-          data = unwind_keys(data, separator)
-          data = deep_symbolize_keys(data)
-
-          # deep_merge by Stefan Rusterholz, see http://www.ruby-forum.com/topic/142809
-          merger = proc do |key, v1, v2|
-            # TODO should probably be:
-            # raise TypeError.new("can't merge #{v1.inspect} and #{v2.inspect}") unless Hash === v1 && Hash === v2
-            Hash === v1 && Hash === v2 ? v1.merge(v2, &merger) : (v2 || v1)
-          end
-          translations[locale].merge!(data, &merger)
+        def warn_syntax_deprecation! #:nodoc:
+          return if @skip_syntax_deprecation
+          warn "The {{key}} interpolation syntax in I18n messages is deprecated. Please use %{key} instead.\n#{caller.join("\n")}"
+          @skip_syntax_deprecation = true
         end
     end
   end
