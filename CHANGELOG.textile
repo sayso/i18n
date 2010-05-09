@@ -53,15 +53,6 @@ h2. 0.3.2 (2009-12-12)
 
 * "Added Cascade backend":http://github.com/svenfuchs/i18n/commit/8009aef293e9ef8564c9005090d8380feabcaf6f
 
-h2. 0.3.3 Fixes by knapo (2010-01)
-* "Better error messages on missing translation for localize method":http://github.com/knapo/i18n/commit/30b3f5080bacf235b3ee0ff2f1e07cff61b3cb30
-* "Extend I18n::Backend::Fallbacks for I18n::Backend::Pluralization":http://github.com/knapo/i18n/commit/0273038b39aba1fde9db1a97e64a28e889bc1482
-* "Extend I18n::Backend::Fallbacks for I18n.localize":http://github.com/knapo/i18n/commit/6f3733a3b9c77b571f8ee6bdb5f3d3b7e9332275
-* "Add I18n::LoadPath":http://github.com/knapo/i18n/commit/498bd68d55f5e81513745520550c2f941ac42eba
-* "Add I18n.with_locale method":http://github.com/knapo/i18n/commit/f7ead581f22fba271d54819f8e747de323a5ca7b
-* "Fix :default *translate* method option for I18n::Backend::Fallbacks":http://github.com/knapo/i18n/commit/071ca4349af369b7e2b0a9b4c833cbb7005a5bf2
-* "Added ZuperFast Backend handling flatten YML files
-
 h2. 0.3.1 (2009-12-11)
 
 * "Add PoParser to gemspec":http://github.com/svenfuchs/i18n/commit/d6b2763f39c932f66adb039b96882a472f883c51
