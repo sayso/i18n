@@ -178,8 +178,7 @@ module I18n
           return entry unless entry.is_a?(Hash) and count
 
           key = :zero if count == 0 && entry.has_key?(:zero)
-          key ||= :one if count == 1 && entry.has_key?(:one)
-          key ||= :other
+          key ||= count == 1 ? :one : :other
           raise InvalidPluralizationData.new(entry, count) unless entry.has_key?(key)
           entry[key]
         end
