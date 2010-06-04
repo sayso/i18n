@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 require 'i18n/backend/base'
 require 'active_support/json'
 
@@ -47,6 +48,7 @@ module I18n
     #
     #   I18n::Backend::KeyValue.new(@store, false)
     #
+    # This is useful if you are using a KeyValue backend chained to a Simple backend.
     class KeyValue
       module Implementation
         attr_accessor :store
@@ -57,12 +59,9 @@ module I18n
           @store, @subtrees = store, subtrees
         end
 
-        # Mute reload! since we really don't want to clean the database.
-        def reload!
-        end
-
         def store_translations(locale, data, options = {})
-          flatten_translations(locale, data, @subtrees).each do |key, value|
+          escape = options.fetch(:escape, true)
+          flatten_translations(locale, data, escape, @subtrees).each do |key, value|
             key = "#{locale}.#{key}"
 
             case value
@@ -80,8 +79,6 @@ module I18n
         end
 
         def available_locales
-          init_translations unless initialized?
-
           locales = @store.keys.map { |k| k =~ /\./; $` }
           locales.uniq!
           locales.compact!

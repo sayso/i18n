@@ -82,8 +82,7 @@ class InterpolationCompilerTest < Test::Unit::TestCase
 end
 
 class I18nBackendInterpolationCompilerTest < Test::Unit::TestCase
-  class Backend
-    include I18n::Backend::Base
+  class Backend < I18n::Backend::Simple
     include I18n::Backend::InterpolationCompiler
   end
   
@@ -102,7 +101,5 @@ class I18nBackendInterpolationCompilerTest < Test::Unit::TestCase
     end
     super
   end
-  
-  # I kinda don't think this really is a correct behavior
-#  undef :'test interpolation: given no values it does not alter the string'
+
 end

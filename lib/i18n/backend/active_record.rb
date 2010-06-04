@@ -11,12 +11,7 @@ module I18n
       module Implementation
         include Base, Flatten
 
-        def reload!
-        end
-
         def available_locales
-          init_translations unless initialized?
-
           begin
             Translation.available_locales
           rescue ::ActiveRecord::StatementInvalid
@@ -25,7 +20,8 @@ module I18n
         end
 
         def store_translations(locale, data, options = {})
-          flatten_translations(locale, data).each do |key, value|
+          escape = options.fetch(:escape, true)
+          flatten_translations(locale, data, escape, false).each do |key, value|
             Translation.locale(locale).lookup(expand_keys(key)).delete_all
             Translation.create(:locale => locale.to_s, :key => key.to_s, :value => value)
           end

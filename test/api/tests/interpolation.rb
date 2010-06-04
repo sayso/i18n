@@ -9,24 +9,21 @@ module Tests
         I18n.backend.translate('en', key, options)
       end
 
-      define_method "test interpolation: it raise I18n::MissingInterpolationArgument when no values given and default passed" do
-        assert_raise(I18n::MissingInterpolationArgument) do
-          interpolate(:default => 'Hi %{name}!')
-        end
-      end
-
-      define_method "test interpolation: it raise I18n::MissingInterpolationArgument when no values given" do
-        I18n.backend.store_translations(:en, :interpolate => 'Hi %{name}!')
-        assert_raise(I18n::MissingInterpolationArgument) do
-          interpolate(:interpolate)
-        end
-      end
-
-      define_method "test interpolation: it raise I18n::MissingInterpolationArgument when no values given" do
-        I18n.backend.store_translations(:en, :interpolate => 'Hi %{name}!')
-        assert_raise(I18n::MissingInterpolationArgument) do
-          interpolate(:default => 'Hi %{name}!')
-        end
+      # If no interpolation parameter is not given, I18n should not alter the string.
+      # This behavior is due to three reasons:
+      #
+      #   * Checking interpolation keys in all strings hits performance, badly;
+      #
+      #   * This allows us to retrieve untouched values through I18n. For example
+      #     I could have a middleware that returns I18n lookup results in JSON
+      #     to be processed through Javascript. Leaving the keys untouched allows
+      #     the interpolation to happen at the javascript level;
+      #
+      #   * Security concerns: if I allow users to translate a web site, they can
+      #     insert %{} in messages causing the I18n lookup to fail in every request.
+      #
+      define_method "test interpolation: given no values it does not alter the string" do
+        assert_equal 'Hi %{name}!', interpolate(:default => 'Hi %{name}!')
       end
 
       define_method "test interpolation: given values it interpolates them into the string" do
