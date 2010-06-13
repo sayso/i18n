@@ -43,19 +43,24 @@ class I18nBackendCacheTest < Test::Unit::TestCase
       I18n.backend.expects(:lookup).returns(nil)
       assert_raise(I18n::MissingTranslationData) { I18n.t(:missing, :raise => true) }
 
+      I18n.cache_store.expects(:write).never
       I18n.backend.expects(:lookup).never
       assert_raise(I18n::MissingTranslationData) { I18n.t(:missing, :raise => true) }
     end
   end
 
   test "uses 'i18n' as a cache key namespace by default" do
-    assert_equal 0, I18n.backend.send(:cache_key, :foo).index('i18n')
+    assert_equal 0, I18n.backend.send(:cache_key, :en, :foo, {}).index('i18n')
   end
 
   test "adds a custom cache key namespace" do
     with_cache_namespace('bar') do
-      assert_equal 0, I18n.backend.send(:cache_key, :foo).index('i18n-bar')
+      assert_equal 0, I18n.backend.send(:cache_key, :en, :foo, {}).index('i18n/bar/')
     end
+  end
+
+  test "adds locale and hash of key and hash of options" do
+    assert_equal "i18n//en/#{:foo.hash}/#{{:bar=>1}.hash}", I18n.backend.send(:cache_key, :en, :foo, {:bar=>1})
   end
 
   protected

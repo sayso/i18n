@@ -8,7 +8,7 @@
 #  Example usage:
 #
 #     I18n::Backend::Chain.send(:include, I18n::Backend::ActiveRecord::Missing)
-#     I18n.backend = I18nChainBackend.new(I18n::Backend::ActiveRecord.new, I18n::Backend::Simple.new)
+#     I18n.backend = I18n::Backend::Chain.new(I18n::Backend::ActiveRecord.new, I18n::Backend::Simple.new)
 #
 #  Stub records for pluralizations will also be created for each key defined
 #  in i18n.plural.keys.
@@ -33,16 +33,16 @@ module I18n
   module Backend
     class ActiveRecord
       module Missing
-        def store_default_translations(locale, key, options = {})
-          count, scope, default, separator = options.values_at(:count, *Base::RESERVED_KEYS)
-          separator ||= I18n.default_separator
+        include Flatten
 
-          keys = I18n.normalize_keys(locale, key, scope, separator)[1..-1]
-          key = keys.join(separator || I18n.default_separator)
+        def store_default_translations(locale, key, options = {})
+          count, scope, default, separator = options.values_at(:count, :scope, :default, :separator)
+          separator ||= I18n.default_separator
+          key = normalize_flat_keys(locale, key, scope, separator)
 
           unless ActiveRecord::Translation.locale(locale).lookup(key).exists?
-            interpolations = options.reject { |name, value| Base::RESERVED_KEYS.include?(name) }.keys
-            keys = count ? I18n.t('i18n.plural.keys', :locale => locale).map { |k| [key, k].join(separator) } : [key]
+            interpolations = options.keys - Base::RESERVED_KEYS
+            keys = count ? I18n.t('i18n.plural.keys', :locale => locale).map { |k| [key, k].join(FLATTEN_SEPARATOR) } : [key]
             keys.each { |key| store_default_translation(locale, key, interpolations) }
           end
         end

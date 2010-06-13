@@ -67,30 +67,35 @@ module Tests
           if can_store_procs?
             setup_time_proc_translations
             time = ::Time.parse('2008-03-01 6:00 UTC')
-            assert_equal '[Sat Mar 01 06:00:00 UTC 2008, {}]', I18n.l(time, :format => :proc, :locale => :ru)
+            assert_equal [time, {}].inspect, I18n.l(time, :format => :proc, :locale => :ru)
           end
         end
 
         define_method "test localize Time: given a format that resolves to a Proc it calls the Proc with the object and extra options" do
           if can_store_procs?
             setup_time_proc_translations
-            time = ::Time.parse('2008-03-01 6:00 UTC')
-            assert_equal '[Sat Mar 01 06:00:00 UTC 2008, {:foo=>"foo"}]', I18n.l(time, :format => :proc, :foo => 'foo', :locale => :ru)
+            time    = ::Time.parse('2008-03-01 6:00 UTC')
+            options = { :foo => 'foo' }
+            assert_equal [time, options].inspect, I18n.l(time, options.merge(:format => :proc, :locale => :ru))
           end
         end
 
         protected
 
+          def filter_args(*args)
+            args.map {|arg| arg.delete(:fallback) if arg.is_a?(Hash) ; arg }.inspect
+          end
+
           def setup_time_proc_translations
             store_translations :ru, {
               :time => {
                 :formats => {
-                  :proc => lambda { |*args| args.inspect }
+                  :proc => lambda { |*args| filter_args(*args) }
                 }
               },
               :date => {
                 :formats => {
-                  :proc => lambda { |*args| args.inspect }
+                  :proc => lambda { |*args| filter_args(*args) }
                 },
                 :'day_names' => lambda { |key, options|
                   (options[:format] =~ /^%A/) ?
