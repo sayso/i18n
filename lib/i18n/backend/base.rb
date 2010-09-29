@@ -200,9 +200,10 @@ module I18n
         # for all other file extensions.
         def load_file(filename)
           type = File.extname(filename).tr('.', '').downcase
-          raise UnknownFileType.new(type, filename) unless respond_to?(:"load_#{type}")
-          data = send(:"load_#{type}", filename) # TODO raise a meaningful exception if this does not yield a Hash
-          data.each { |locale, d| store_translations(locale, d) }
+          raise UnknownFileType.new(type, filename) unless respond_to?(:"load_#{type}", true)
+          data = send(:"load_#{type}", filename)
+          raise InvalidLocaleData.new(filename) unless data.is_a?(Hash)
+          data.each { |locale, d| store_translations(locale, d || {}) }
         end
 
         # Loads a plain Ruby translations file. eval'ing the file must yield
@@ -214,12 +215,12 @@ module I18n
         # Loads a YAML translations file. The data must have locales as
         # toplevel keys.
         def load_yml(filename)
-          YAML::load(IO.read(filename))
+          YAML.load_file(filename)
         end
 
         def warn_syntax_deprecation!(locale, string) #:nodoc:
           return if @skip_syntax_deprecation
-          warn "The {{key}} interpolation syntax in I18n messages is deprecated. Please use %{key} instead.\n#{locale} - #{string}\n#{caller.join("\n")}"
+          warn "The {{key}} interpolation syntax in I18n messages is deprecated. Please use %{key} instead.\n#{locale} - #{string}\n"
           @skip_syntax_deprecation = true
         end
     end
