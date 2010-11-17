@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Authors::   Sven Fuchs (http://www.artweb-design.de),
 #             Joshua Harvey (http://www.workingwithrails.com/person/759-joshua-harvey),
 #             Stephan Soller (http://www.arkanis-development.de/),
@@ -7,6 +5,7 @@
 #             Matt Aimonetti (http://railsontherun.com/)
 # Copyright:: Copyright (c) 2008 The Ruby i18n Team
 # License::   MIT
+require 'i18n/version'
 require 'i18n/exceptions'
 require 'i18n/core_ext/string/interpolate'
 
@@ -15,6 +14,7 @@ module I18n
   autoload :Config,  'i18n/config'
   autoload :Gettext, 'i18n/gettext'
   autoload :Locale,  'i18n/locale'
+  autoload :Tests,   'i18n/tests'
 
   class << self
     # Gets I18n configuration object.
@@ -251,7 +251,6 @@ module I18n
       self.locale = current_locale if tmp_locale
     end
 
-
     # Merges the given locale, key and scope into a single array of keys.
     # Splits keys that contain dots into multiple keys. Makes sure all
     # keys are Symbols.
@@ -268,15 +267,6 @@ module I18n
   # making these private until Ruby 1.9.2 can send to protected methods again
   # see http://redmine.ruby-lang.org/repositories/revision/ruby-19?rev=24280
   private
-
-    # Handles exceptions raised in the backend. All exceptions except for
-    # MissingTranslationData exceptions are re-raised. When a MissingTranslationData
-    # was caught and the option :raise is not set the handler returns an error
-    # message string containing the key/scope.
-    def default_exception_handler(exception, locale, key, options)
-      return exception.message if MissingTranslationData === exception
-      raise exception
-    end
 
     # Any exceptions thrown in translate will be sent to the @@exception_handler
     # which can be a Symbol, a Proc or any other Object.
@@ -296,18 +286,12 @@ module I18n
     #  I18n.exception_handler = I18nExceptionHandler.new                # an object
     #  I18n.exception_handler.call(exception, locale, key, options)     # will be called like this
     def handle_exception(exception, locale, key, options)
-      case config.exception_handler
+      case handler = options[:exception_handler] || config.exception_handler
       when Symbol
-        send(config.exception_handler, exception, locale, key, options)
+        send(handler, exception, locale, key, options)
       else
-        config.exception_handler.call(exception, locale, key, options)
+        handler.call(exception, locale, key, options)
       end
-    end
-
-    # Deprecated. Will raise a warning in future versions and then finally be
-    # removed. Use I18n.normalize_keys instead.
-    def normalize_translation_keys(locale, key, scope, separator = nil)
-      normalize_keys(locale, key, scope, separator)
     end
 
     def normalize_key(key, separator)
@@ -325,6 +309,20 @@ module I18n
 
     def normalized_key_cache
       @normalized_key_cache ||= Hash.new { |h,k| h[k] = {} }
+    end
+
+    # DEPRECATED. Use I18n.normalize_keys instead.
+    def normalize_translation_keys(locale, key, scope, separator = nil)
+      puts "I18n.normalize_translation_keys is deprecated. Please use the class I18n.normalize_keys instead."
+      normalize_keys(locale, key, scope, separator)
+    end
+
+    # DEPRECATED. Please use the I18n::ExceptionHandler class instead.
+    def default_exception_handler(exception, locale, key, options)
+      puts "I18n.default_exception_handler is deprecated. Please use the class I18n::ExceptionHandler instead " +
+           "(an instance of which is set to I18n.exception_handler by default)."
+      return exception.message if MissingTranslationData === exception
+      raise exception
     end
   end
 end

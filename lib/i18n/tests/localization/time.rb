@@ -1,22 +1,22 @@
 # encoding: utf-8
 
-module Tests
-  module Api
+module I18n
+  module Tests
     module Localization
       module Time
         def setup
           super
           setup_time_translations
-          @time = ::Time.parse('2008-03-01 6:00 UTC')
-          @other_time = ::Time.parse('2008-03-01 18:00 UTC')
+          @time = ::Time.utc(2008, 3, 1, 6, 0)
+          @other_time = ::Time.utc(2008, 3, 1, 18, 0)
         end
 
-        define_method "test localize Time: given the short format it uses it" do
+        test "localize Time: given the short format it uses it" do
           # TODO should be Mrz, shouldn't it?
           assert_equal '01. Mar 06:00', I18n.l(@time, :format => :short, :locale => :de)
         end
 
-        define_method "test localize Time: given the long format it uses it" do
+        test "localize Time: given the long format it uses it" do
           assert_equal '01. März 2008 06:00', I18n.l(@time, :format => :long, :locale => :de)
         end
 
@@ -25,40 +25,40 @@ module Tests
         #   assert_equal 'Sa, 01. Mar 2008 06:00:00 +0000', I18n.l(@time, :format => :default, :locale => :de)
         # end
 
-        define_method "test localize Time: given a day name format it returns the correct day name" do
+        test "localize Time: given a day name format it returns the correct day name" do
           assert_equal 'Samstag', I18n.l(@time, :format => '%A', :locale => :de)
         end
 
-        define_method "test localize Time: given an abbreviated day name format it returns the correct abbreviated day name" do
+        test "localize Time: given an abbreviated day name format it returns the correct abbreviated day name" do
           assert_equal 'Sa', I18n.l(@time, :format => '%a', :locale => :de)
         end
 
-        define_method "test localize Time: given a month name format it returns the correct month name" do
+        test "localize Time: given a month name format it returns the correct month name" do
           assert_equal 'März', I18n.l(@time, :format => '%B', :locale => :de)
         end
 
-        define_method "test localize Time: given an abbreviated month name format it returns the correct abbreviated month name" do
+        test "localize Time: given an abbreviated month name format it returns the correct abbreviated month name" do
           # TODO should be Mrz, shouldn't it?
           assert_equal 'Mar', I18n.l(@time, :format => '%b', :locale => :de)
         end
 
-        define_method "test localize Time: given a meridian indicator format it returns the correct meridian indicator" do
+        test "localize Time: given a meridian indicator format it returns the correct meridian indicator" do
           assert_equal 'am', I18n.l(@time, :format => '%p', :locale => :de)
           assert_equal 'pm', I18n.l(@other_time, :format => '%p', :locale => :de)
         end
 
-        define_method "test localize Time: given an unknown format it does not fail" do
+        test "localize Time: given an unknown format it does not fail" do
           assert_nothing_raised { I18n.l(@time, :format => '%x') }
         end
 
-        define_method "test localize Time: given a format is missing it raises I18n::MissingTranslationData" do
+        test "localize Time: given a format is missing it raises I18n::MissingTranslationData" do
           assert_raise(I18n::MissingTranslationData) { I18n.l(@time, :format => :missing) }
         end
 
         protected
 
           def setup_time_translations
-            store_translations :de, {
+            I18n.backend.store_translations :de, {
               :time => {
                 :formats => {
                   :default => "%a, %d. %b %Y %H:%M:%S %z",
