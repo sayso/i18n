@@ -6,7 +6,7 @@
 # To enable locale fallbacks you can simply include the Fallbacks module to
 # the Simple backend - or whatever other backend you are using:
 #
-#   I18n::Backend::Simple.send(:include, I18n::Backend::Fallbacks)
+#   I18n::Backend::Simple.include(I18n::Backend::Fallbacks)
 module I18n
   @@fallbacks = nil
 
@@ -54,7 +54,7 @@ module I18n
       end
 
       def extract_string_or_lambda_default!(options)
-        defaults = Array(options[:default])
+        defaults = [options[:default]].flatten
         if index = find_first_string_or_lambda_default(defaults)
           options[:default] = defaults[0, index]
           defaults[index]
