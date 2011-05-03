@@ -4,7 +4,7 @@
 # To enable caching you can simply include the Cache module to the Simple
 # backend - or whatever other backend you are using:
 #
-#   I18n::Backend::Simple.send(:include, I18n::Backend::Cache)
+#   I18n::Backend::Simple.include(I18n::Backend::Cache)
 #
 # You will also need to set a cache store implementation that you want to use:
 #
@@ -69,23 +69,17 @@ module I18n
       protected
 
         def fetch(cache_key, &block)
-          result = fetch_storing_missing_translation_exception(cache_key, &block)
-          raise result if result.is_a?(Exception)
+          result = _fetch(cache_key, &block)
+          throw(:exception, result) if result.is_a?(MissingTranslation)
           result = result.dup if result.frozen? rescue result
           result
         end
 
-        def fetch_storing_missing_translation_exception(cache_key, &block)
-          fetch_ignoring_procs(cache_key, &block)
-        rescue MissingTranslationData => exception
-          I18n.cache_store.write(cache_key, exception)
-          exception
-        end
-
-        def fetch_ignoring_procs(cache_key, &block)
-          I18n.cache_store.read(cache_key) || yield.tap do |result|
-            I18n.cache_store.write(cache_key, result) unless result.is_a?(Proc)
-          end
+        def _fetch(cache_key, &block)
+          result = I18n.cache_store.read(cache_key) and return result
+          result = catch(:exception, &block)
+          I18n.cache_store.write(cache_key, result) unless result.is_a?(Proc)
+          result
         end
 
         def cache_key(locale, key, options)

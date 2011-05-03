@@ -6,7 +6,7 @@
 # To enable locale fallbacks you can simply include the Fallbacks module to
 # the Simple backend - or whatever other backend you are using:
 #
-#   I18n::Backend::Simple.send(:include, I18n::Backend::Fallbacks)
+#   I18n::Backend::Simple.include(I18n::Backend::Fallbacks)
 module I18n
   @@fallbacks = nil
 
@@ -29,8 +29,7 @@ module I18n
       # locale :"de-DE" it might try the locales :"de-DE", :de and :en
       # (depends on the fallbacks implementation) until it finds a result with
       # the given options. If it does not find any result for any of the
-      # locales it will then raise a MissingTranslationData exception as
-      # usual.
+      # locales it will then throw MissingTranslation as usual.
       #
       # The default option takes precedence over fallback locales
       # only when it's a Symbol. When the default contains a String or a Proc
@@ -41,20 +40,19 @@ module I18n
 
         options[:fallback] = true
         I18n.fallbacks[locale].each do |fallback|
-          begin
+          catch(:exception) do
             result = super(fallback, key, options)
             return result unless result.nil?
-          rescue I18n::MissingTranslationData
           end
         end
         options.delete(:fallback)
 
         return super(locale, nil, options.merge(:default => default)) if default
-        raise(I18n::MissingTranslationData.new(locale, key, options))
+        throw(:exception, I18n::MissingTranslation.new(locale, key, options))
       end
 
       def extract_string_or_lambda_default!(options)
-        defaults = Array(options[:default])
+        defaults = [options[:default]].flatten
         if index = find_first_string_or_lambda_default(defaults)
           options[:default] = defaults[0, index]
           defaults[index]
